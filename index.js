@@ -4,6 +4,7 @@ const cart_items = document.querySelector('#cart .cart-items');
 const parentNode = document.getElementById('music-content');
 
 const parentContainer=document.getElementById('EcommerceContainer')
+const pagenation=document.querySelector(".pagenation")
 parentContainer.addEventListener('click',(e)=>{
     if(e.target.className == 'shop-item-button') {
         const id = e.target.parentNode.parentNode.id;
@@ -71,10 +72,87 @@ parentContainer.addEventListener('click',(e)=>{
         document.querySelector('#total-value').innerText = `${cart_total.toFixed(2)}`
         e.target.parentNode.parentNode.remove()
     }
+    if(e.target.className=='page'){
+        const reqpage=e.target.id;
+        axios.get(`http://localhost:3000/products/?page=${reqpage}`).then(data=>{
+            const products=data.data.products;
+            const pages=data.data.obj
+            const container1 = document.getElementById('#Products');
+            const pagenation=document.querySelector(".pagenation")
+            container1.innerHTML="";
+            for(let i=0;i<products.length;i++){
+                const id=products[i].id;
+                const product=document.createElement('div');
+                product.classList.add('product');
+                product.setAttribute('id',products[i].title);
+                const head=document.createElement('h3');
+                head.innerText=`${products[i].title}`
+                product.appendChild(head);
+                const imgdiv=document.createElement('div')
+                imgdiv.classList.add('imgdiv');
+                imgdiv.setAttribute('id',id)
+                const img=document.createElement('img');
+                img.classList.add('prodimg')
+                img.setAttribute('src',`${products[i].imageUrl}`)
+                img.setAttribute('alt',`${products[i].title}`)
+                imgdiv.appendChild(img)
+                product.appendChild(imgdiv)
+                const prodde=document.createElement('div')
+                prodde.classList.add("productdetails")
+                const pspa=document.createElement('span')
+                pspa.innerText=`${products[i].price}`
+                prodde.appendChild(pspa)
+                const btn=document.createElement('button')
+                btn.classList.add("shoppingbutton")
+                btn.setAttribute('type',"button")
+                btn.innerText="Add to cart"
+                prodde.appendChild(btn)
+                product.appendChild(prodde)
+                container1.appendChild(product)
+
+            }
+            pagenation.innerHTML=""
+            if(pages.currentPage!==1 && pages.previousPage!==1){
+                const newpg=document.createElement("a")
+                newpg.setAttribute('id',`1`)
+                newpg.setAttribute("class","page")
+                newpg.innerText=`1`
+                pagenation.appendChild(newpg)
+            }
+            if(pages.hasPreviousPage){
+                const newpg2=document.createElement("a")
+                newpg2.setAttribute("class","page")
+                newpg2.setAttribute('id',`${previousPage}`)
+                newpg2.innerText=`${pages.previousPage}`
+                pagenation.appendChild(newpg2)
+            }
+            const newpg1=document.createElement("a")
+            newpg1.setAttribute('id',`${pages.currentPage}`)
+            console.log("rendering current page")
+            newpg1.setAttribute("class","page")
+            newpg1.innerText=`${pages.currentPage}`
+            pagenation.appendChild(newpg1)
+            if(pages.hasNextPAge){
+                const newpg3=document.createElement("a")
+                newpg3.setAttribute("class","page")
+                newpg3.setAttribute('id',`${pages.nextPage}`)
+                newpg3.innerText=`${pages.nextPage}`
+                pagenation.appendChild(newpg3)
+            }
+            if(pages.lastPage!==pages.currentPage && pages.nextPage!==pages.lastPage){
+                const newpg4=document.createElement("a")
+                newpg4.setAttribute("class","page")
+                newpg4.setAttribute('id',`${pages.nextPage}`)
+                newpg4.innerText=`${pages.nextPage}`
+                pagenation.appendChild(newpg4)
+            }
+        }).catch(err=>console.log(err))
+    }
 })
 
 window.addEventListener('DOMContentLoaded' , async () => {
-    const db = await axios.get('http://localhost:3000/products');
+    
+    const db = await axios.get('http://localhost:3000/products/?page=1');
     const albums = document.getElementById('Products');
     let r=1;
     for(let i=0; i<db.data.products.length ; i++){
@@ -95,6 +173,44 @@ window.addEventListener('DOMContentLoaded' , async () => {
     
         Products.appendChild(elem);
     }
+    console.log(db)
+    const pages=db.data.obj;
+    pagenation.innerHTML=""
+    if(pages.currentPage!==1 && pages.previousPage!==1){
+        const newpg=document.createElement("a")
+        newpg.setAttribute('id',`1`)
+        newpg.setAttribute("class","page")
+        newpg.innerText=`1`
+        pagenation.appendChild(newpg)
+    }
+    if(pages.hasPreviousPage){
+        const newpg2=document.createElement("a")
+        newpg2.setAttribute("class","page")
+        newpg2.setAttribute('id',`${previousPage}`)
+        newpg2.innerText=`${pages.previousPage}`
+        pagenation.appendChild(newpg2)
+    }
+    const newpg1=document.createElement("a")
+    newpg1.setAttribute('id',`${pages.currentPage}`)
+    console.log("rendering current page")
+    newpg1.setAttribute("class","page")
+    newpg1.innerText=`${pages.currentPage}`
+    pagenation.appendChild(newpg1)
+    if(pages.hasNextPAge){
+        const newpg3=document.createElement("a")
+        newpg3.setAttribute("class","page")
+        newpg3.setAttribute('id',`${pages.nextPage}`)
+        newpg3.innerText=`${pages.nextPage}`
+        pagenation.appendChild(newpg3)
+    }
+    if(pages.lastPage!==pages.currentPage && pages.nextPage!==pages.lastPage){
+        const newpg4=document.createElement("a")
+        newpg4.setAttribute("class","page")
+        newpg4.setAttribute('id',`${pages.nextPage}`)
+        newpg4.innerText=`${pages.nextPage}`
+        pagenation.appendChild(newpg4)
+    }   
+
 })
 function addToCart(productId){
     console.log('add')
@@ -134,6 +250,12 @@ function getCart() {
         }
 
     })
+}
+let products={
+
+}
+function pagination(){
+    const items_per_page=1;
 }
 function notifyUsers(message){
     const container = document.getElementById('container');
